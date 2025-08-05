@@ -113,5 +113,60 @@ class WP_Backend_Challenge
         dbDelta($sql);
     }
 
-    
+    /**
+     * Adiciona botão de favorito
+     *
+     * @param string $content Conteúdo em html
+     * 
+     * @return string $content Conteúdo em html com o botão
+     */
+    public function addFavoriteButton(string $content)
+    {
+        if (!(is_singular('post') && is_user_logged_in())) {
+            return $content;
+        }
+
+        $user_id = get_current_user_id();
+        $post_id = get_the_ID();
+
+        $is_favorited = $this->_isPostFavorited($user_id, $post_id);
+        $button_text = $is_favorited
+            ? __('Desfavoritar', 'wp_backend_challenge')
+            : __('Favoritar', 'wp_backend_challenge');
+        $button_class = $is_favorited ? 'favorited' :  '';
+        $button_html = '<p><a href="#" class="wpb-favorite-button '
+            . $button_class
+            . '" data-post-id="'
+            . $post_id
+            . '">'
+            . $button_text
+            . '</a></p>';
+        return $content . $button_html;
+    }
+
+    /**
+     * Função que verifica pelos ids se o post está favoritado ou não
+     *
+     * @param string|integer $user_id Id do usuário
+     * @param string|integer $post_id Id do post
+     * 
+     * @return bool retorna verdadeiro se o post estiver favoritado
+     */
+    private function _isPostFavorited(string|int $user_id, string|int $post_id)
+    {
+        /**
+         * Banco de dados do wordpress
+         * 
+         * @var wpdb $wpdb
+         */
+        global $wpdb;
+        $count = $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT (*) FROM {$this->_table_name} WHERE user_id = %d AND post_id = %d",
+                $user_id,
+                $post_id
+            )
+        );
+        return $count > 0;
+    }
 }
