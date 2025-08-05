@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Plugin Name: WordPress Back End Challenge
  * Plugin URI: https://github.com/gustavodscruz/wordpress-back-end-challenge
@@ -29,14 +30,31 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-declare(strict_types=1);
-
 // Definir constantes do plugin
 define('WP_BACKEND_CHALLENGE_VERSION', '1.0.0');
 define('WP_BACKEND_CHALLENGE_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('WP_BACKEND_CHALLENGE_PLUGIN_PATH', plugin_dir_path(__FILE__));
 
-require_once WP_BACKEND_CHALLENGE_PLUGIN_PATH . '/includes/main.php';
+// Incluir arquivos apenas quando o WordPress estiver carregado
+add_action(
+    'plugins_loaded', function () {
+        include_once WP_BACKEND_CHALLENGE_PLUGIN_PATH . 'includes/main.php';
+        WP_Backend_Challenge::getInstance();
+    }
+);
 
 
-WP_Backend_Challenge::getInstance();
+
+/**
+ * Chama a criação de tabela de usuários
+ *
+ * @return void
+ */
+function wpfActivate()
+{
+    include_once WP_BACKEND_CHALLENGE_PLUGIN_PATH . 'includes/main.php';
+    WP_Backend_Challenge::createTable();
+}
+
+register_activation_hook(__FILE__, 'wpfActivate');
+
