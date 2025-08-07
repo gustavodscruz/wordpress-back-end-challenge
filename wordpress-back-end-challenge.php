@@ -37,24 +37,35 @@ define('WP_BACKEND_CHALLENGE_PLUGIN_PATH', plugin_dir_path(__FILE__));
 
 // Incluir arquivos apenas quando o WordPress estiver carregado
 add_action(
-    'plugins_loaded', function () {
+    'plugins_loaded', 
+    function () {
         include_once WP_BACKEND_CHALLENGE_PLUGIN_PATH . 'includes/main.php';
         WP_Backend_Challenge::getInstance();
     }
 );
 
-
+// Hooks de ativação e desativação
+register_activation_hook(__FILE__, 'wpbActivatePlugin');
+register_deactivation_hook(__FILE__, 'wpbDeactivatePlugin');
 
 /**
- * Chama a criação de tabela de usuários
+ * Ativa o plugin e cria as tabelas necessárias
  *
  * @return void
  */
-function wpfActivate()
+function wpbActivatePlugin()
 {
     include_once WP_BACKEND_CHALLENGE_PLUGIN_PATH . 'includes/main.php';
     WP_Backend_Challenge::createTable();
 }
 
-register_activation_hook(__FILE__, 'wpfActivate');
+/**
+ * Desativa o plugin
+ *
+ * @return void
+ */
+function wpbDeactivatPplugin()
+{
+    // Código de desativação se necessário
+}
 
